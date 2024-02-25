@@ -1,28 +1,36 @@
-const jwt = require('jsonwebtoken')
-const User = require('../models/users')
+const jwt = require('jsonwebtoken');
+const User = require('../models/users');
 
-
-const requireAuth = async (req, res, next) =>
-{
-    const { authorization } = req.headers
-    if (!authorization)
-    {
-        return res.status(401).json({error: "need to Auth"})
+const requireAuth = async (req, res, next) => {
+    const { authorization } = req.headers;
+    if (!authorization) {
+        return res.status(401).json({ error: "Authorization header is required" });
     }
 
-    const token = authorization.split(' ')[1]
+    const token = authorization.split(' ')[1];
 
-    try 
-    {
-       const {_id} = jwt.verify(token, process.env.SECRET) 
-       req.user = await User.findOne({ _id}).select('_id')
-       next()
-    }
-    catch(error)
-    {
-        console.log(error)
-        res.status(401).json({error: "req not authorised"})
-    }
-}
+    try {
+        const { _id, role } = jwt.verify(token, process.env.SECRET);
+        const user = await User.findOne({ _id }).select('_id role');
+        // Check user role
+        if (user.role === 'basic') {
+            return res.status(403).json({ error: "Insufficient permissions" });
+        }
 
-module.exports = requireAuth
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        req.user = user;
+
+        // Check user role
+
+        next();
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({ error: "Unauthorized" });
+    }
+};
+
+
+module.exports = requireAuth;

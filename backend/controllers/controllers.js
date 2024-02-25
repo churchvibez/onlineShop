@@ -4,25 +4,7 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 
-const getProduct = async (req, res) =>
-{
-    try {
-        const { name } = req.params;
-        const { page = 1, limit = 10 } = req.query;
 
-        const pageNumber = parseInt(page);
-        const limitNumber = parseInt(limit);
-        const skip = (pageNumber - 1) * limitNumber;
-        const products = await Product.find({ name: { $regex: new RegExp(name, 'i') } })
-            .skip(skip)
-            .limit(limitNumber);
-
-        res.status(200).json(products);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: error.message });
-    }
-}
 
 const getUsers = async (req, res) => {
     try {
@@ -33,6 +15,28 @@ const getUsers = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 }
+
+const getAllBrands = async (req, res) => {
+    try {
+        // Query all products and return unique brand names
+        const brands = await Product.distinct('brand');
+        res.status(200).json(brands);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const getAllCategories = async (req, res) => {
+    try {
+        // Query all products and return unique brand names
+        const categories = await Product.distinct('category');
+        res.status(200).json(categories);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 const getName = async (req, res) => 
 {
@@ -150,6 +154,21 @@ const postUser = async (req, res) => {
 };
 
 
+const deleteID = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await Product.deleteOne({ _id: id });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        res.status(200).json({ message: `Product deleted successfully` });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: error.message });
+    }
+}
 
 const deleteName = async (req, res) =>
 {
@@ -185,6 +204,22 @@ const deleteBrand = async (req, res) =>
     }
 }
 
+const deleteCategory = async (req, res) =>
+{
+    try {
+        const { category } = req.params;
+        const result = await Product.deleteMany({ category: { $regex: new RegExp(category, 'i') } });
+        console.error(result)
+        if (result.nModified === 0) {
+            return res.status(404).json({ message: "category doesnt exist" });
+        }
+        res.status(200).json({ message: `deleted` });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: error.message });
+    }
+}
+
 const deleteImage = async (req, res) =>
 {
     try {
@@ -202,73 +237,55 @@ const deleteImage = async (req, res) =>
     }
 }
 
-const deleteCategory = async (req, res) =>
-{
-    try {
-        const { category } = req.params;
-        const result = await Product.deleteMany({ category: { $regex: new RegExp(category, 'i') } });
-        console.error(result)
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ message: "category doesnt exist" });
-        }
-        res.status(200).json({ message: `deleted` });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: error.message });
-    }
-}
 
-const deleteID = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await Product.deleteOne({ _id: id });
 
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ message: "Product not found" });
+const patchManyNames = async (req, res) => {
+    try {
+        const { name, newName } = req.params;
+        const result = await Product.updateMany({ name: name }, { $set: { name: newName } });
+
+        if (result.nModified === 0) 
+        {
+            return res.status(404).json({ message: "No products found matching the name or name unchanged" });
         }
 
-        res.status(200).json({ message: `Product deleted successfully` });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: error.message });
-    }
-}
-
-const patchNumber = async (req, res) => {
-    try {
-        const { id, number } = req.params; // Extract product ID and new number from params
-
-        // Update the product with the given _id
-        const result = await Product.updateOne({ _id: id }, { $set: { number: number } });
-
-        if (result.nModified === 0) {
-            return res.status(404).json({ message: "Product not found or number unchanged" });
-        }
-
-        res.status(200).json({ message: "Product number updated successfully" });
+        res.status(200).json({ message: "Products updated successfully" });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 };
 
-const patchName = async (req, res) => {
+const patchManyBrands = async (req, res) => {
     try {
-        const { id, name } = req.params; // Extract product ID and new name from params
-
-        // Update the product with the given _id
-        const result = await Product.updateOne({ _id: id }, { $set: { name: name } });
-
-        if (result.nModified === 0) {
-            return res.status(404).json({ message: "Product not found or name unchanged" });
+        const { brand, newBrand } = req.params;
+        const result = await Product.updateMany({ brand: brand }, { $set: { brand: newBrand } });
+        if (result.nModified === 0) 
+        {
+            return res.status(404).json({ message: "No products found matching the name or name unchanged" });
         }
-
-        res.status(200).json({ message: "Product name updated successfully1" });
+        res.status(200).json({ message: "Products updated successfully" });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+const patchManyCategories = async (req, res) => {
+    try {
+        const { category, newCategory } = req.params;
+        const result = await Product.updateMany({ category: category }, { $set: { category: newCategory } });
+        if (result.nModified === 0) 
+        {
+            return res.status(404).json({ message: "No products found matching the name or name unchanged" });
+        }
+        res.status(200).json({ message: "Products updated successfully" });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 const patchBrand = async (req, res) => {
     try {
@@ -391,12 +408,35 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const patchNumber = async (req, res) => {
+    try {
+        const { id, number } = req.params; // Extract product ID and new number from params
+        
+        // Validate if the number is negative
+        if (parseInt(number) < 0) {
+            return res.status(400).json({ message: "Negative numbers are not allowed" });
+        }
+
+        // Update the product with the given _id
+        const result = await Product.updateOne({ _id: id }, { $set: { number: number } });
+
+        if (result.nModified === 0) {
+            return res.status(404).json({ message: "Product not found or number unchanged" });
+        }
+
+        res.status(200).json({ message: "Product number updated successfully" });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 module.exports = 
 {
-    getProduct, getName, getBrand, getImage, getCategory, getUsers,
+    getName, getBrand, getImage, getCategory, getUsers, getAllBrands, getAllCategories,
     postProduct, postUser,
-    patchName, patchBrand, patchImage, patchCategory, patchNumber, patchUser,
+    patchBrand, patchImage, patchCategory, patchNumber, patchUser,
     deleteName, deleteBrand, deleteImage, deleteCategory, deleteID, deleteUser,
-    patchAll
+    patchAll, patchManyNames, patchManyBrands, patchManyCategories
 }

@@ -1,6 +1,7 @@
 const express = require('express')
 const routes = require('./routes/route')
 const userRoutes = require('./routes/userRoutes')
+const userPatch = require('./routes/userPatch')
 const app = express()
 const mongoose = require('mongoose')
 
@@ -22,9 +23,9 @@ app.use((req, res, next) =>
 
 
 app.use(userRoutes)
-app.use("/", routes)
-
-
+//app.use("/buy", userPatch)
+app.use("/products", routes)
+app.use("/users", routes)
 
 
 

@@ -24,7 +24,7 @@ const ProductDetails = ({ product }) => {
       }
       console.log("Product ID:", product._id);
       console.log("New Quantity:", newQuantity);
-      const response = await fetch(`http://localhost:1337/products/${product._id}/${newQuantity}`, {
+      const response = await fetch(`http://localhost:1337/buy/products/${product._id}/${newQuantity}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -133,94 +133,91 @@ const ProductDetails = ({ product }) => {
   return (
     <div className="product-details">
         <p>
-        <strong>Name:</strong>
-        {user && user.role === 'administrator' ? (
-            <input
-            type="text"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-            />
-        ) : (
-            <span>{product.name}</span>
-        )}
-        </p>
-        <p>
-        <strong>Brand:</strong>
-        {user && user.role === 'administrator' ? (
-            <input
-            type="text"
-            value={editedBrand}
-            onChange={(e) => setEditedBrand(e.target.value)}
-            />
-        ) : (
-            <span>{product.brand}</span>
-        )}
-        </p>
-        <p>
-        <strong>Category:</strong>
-        {user && user.role === 'administrator' ? (
-            <input
-            type="text"
-            value={editedCategory}
-            onChange={(e) => setEditedCategory(e.target.value)}
-            />
-        ) : (
-            <span>{product.category}</span>
-        )}
-        </p>
-        <p>
-        <strong>Number:</strong>
-        {user && user.role === 'administrator' ? (
-            <input
-            type="number"
-            value={quantity}
-            onChange={handleQuantityChange}
-            min="1"
-            step="1"
-            />
-        ) : (
-            <span>{product.number}</span>
-        )}
-        </p>
-      <p>
-        <strong>Image:</strong>
-        <img src={product.image} alt="Current Product" style={{ width: 100, height: 100 }} />
-      </p>
-      {user && user.role === 'administrator' && (
-        <p>
-            <strong>New Image:</strong>
-            {!image && (
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            )}
-            {image && (
-            <img src={URL.createObjectURL(image)} alt="Selected" style={{ width: 100, height: 100 }} />
+            <strong>Name:</strong>
+            {user && (user.role === 'administrator' || user.role === 'moderator') ? (
+                <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                />
+            ) : (
+                <span>{product.name}</span>
             )}
         </p>
+        <p>
+            <strong>Brand:</strong>
+            {user && (user.role === 'administrator' || user.role === 'moderator') ? (
+                <input
+                    type="text"
+                    value={editedBrand}
+                    onChange={(e) => setEditedBrand(e.target.value)}
+                />
+            ) : (
+                <span>{product.brand}</span>
+            )}
+        </p>
+        <p>
+            <strong>Category:</strong>
+            {user && (user.role === 'administrator' || user.role === 'moderator') ? (
+                <input
+                    type="text"
+                    value={editedCategory}
+                    onChange={(e) => setEditedCategory(e.target.value)}
+                />
+            ) : (
+                <span>{product.category}</span>
+            )}
+        </p>
+        <p>
+            <strong>Number:</strong>
+            {user && (user.role === 'administrator' || user.role === 'moderator') ? (
+                <input
+                    type="number"
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    min="1"
+                    step="1"
+                />
+            ) : (
+                <span>{product.number}</span>
+            )}
+        </p>
+        <p>
+            <strong>Image:</strong>
+            <img src={product.image} alt="Current Product" style={{ width: 100, height: 100 }} />
+        </p>
+        {user && (user.role === 'administrator' || user.role === 'moderator') && (
+            <p>
+                <strong>New Image:</strong>
+                {!image && (
+                    <input type="file" accept="image/*" onChange={handleFileChange} />
+                )}
+                {image && (
+                    <img src={URL.createObjectURL(image)} alt="Selected" style={{ width: 100, height: 100 }} />
+                )}
+            </p>
         )}
 
-      {user && user.role === 'administrator' && (
-        <>
-          <button onClick={handleEditClick}>Save Changes</button>
-          <button onClick={handleDeleteClick}>Delete Product</button>
-        </>
-      )}
-      {user && user.role === 'moderator' && (
-        <button onClick={handleDeleteClick}>Delete Product</button>
-      )}
-      {user && user.role === 'basic' && (
-        <div>
-            <input 
-            type="number"
-            value={quantity}
-            onChange={handleQuantityChange}
-            min="1"
-            step="1"
-          />
-        <button onClick={handleBuyClick}>Buy</button>
-        </div>
-      )}
+        {user && (user.role === 'administrator' || user.role === 'moderator') && (
+            <>
+                <button onClick={handleEditClick}>Save Changes</button>
+                <button onClick={handleDeleteClick}>Delete Product</button>
+            </>
+        )}
+        {user && user.role === 'basic' && (
+            <div>
+                <input 
+                    type="number"
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    min="1"
+                    step="1"
+                />
+                <button onClick={handleBuyClick}>Buy</button>
+            </div>
+        )}
     </div>
-  );
+);
 };
 
 export default ProductDetails;

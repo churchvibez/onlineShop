@@ -27,12 +27,6 @@ export const ProductsReducer = (state, action) => {
                     product._id === action.payload._id ? action.payload : product
                 )
             };
-        case 'UPDATE_PRODUCT':
-            return {
-                products: state.products.map((product) =>
-                product._id === action.payload._id ? action.payload : product
-                )
-            };
         default:
             return state;
     }

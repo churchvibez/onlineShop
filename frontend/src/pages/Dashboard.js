@@ -7,6 +7,9 @@ import AddUser from '../components/AddUser';
 import BrandDetails from '../components/BrandDetails';
 import CategoryDetails from '../components/CategoryDetails'; // Import CategoryDetails
 import { useProductsContext } from "../hooks/useProductContext";
+import io from 'socket.io-client'; // Import Socket.IO client
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const Dashboard = () => {
     const { products, dispatch } = useProductsContext();
@@ -14,6 +17,37 @@ const Dashboard = () => {
     const [users, setUsers] = useState([]);
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]); // State for categories
+    const [socket, setSocket] = useState(null);
+    const [socketId, setSocketId] = useState(null); // State to store socket ID
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+
+    useEffect(() => {
+        const newSocket = io("http://localhost:1337");
+        setSocket(newSocket);
+    
+        // Emit event to request socket ID
+        newSocket.emit('getSocketId');
+    
+        // Listen for socket ID from the backend
+        newSocket.on('socketId', (id) => {
+            setSocketId(id);
+        });
+    
+        // Listen for productBought event
+        newSocket.on('productBought', (data) => {
+            console.log('Product bought event received:', data); // Log the received data
+            setSnackbarMessage(`Product ${data.productId} has been bought`);
+            setSnackbarOpen(true);
+        });
+    
+        return () => {
+            newSocket.disconnect();
+        };
+    }, [user]);
+
+
+
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -109,6 +143,7 @@ const Dashboard = () => {
 
     return (
         <div>
+            {socketId && <p>Socket ID: {socketId}</p>}
             <div>
                 <h3>PRODUCTS</h3>
                 {products && products.map((product) => (

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProductsContext } from '../hooks/useProductContext';
 import { useAuthContext } from '../hooks/useAuthContext';
+import io from 'socket.io-client'; // Import Socket.IO client
+const socket = io.connect("http://localhost:1337")
 
 const ProductDetails = ({ product }) => {
   const { dispatch } = useProductsContext();
@@ -11,17 +13,40 @@ const ProductDetails = ({ product }) => {
   const [editedCategory, setEditedCategory] = useState(product.category);
   const [image, setImage] = useState(null); // State to hold the selected image file
 
-  
+  useEffect(() => {
+    socket.on("receive_message", (data) => {
+      if (user && user.role === 'administrator') {
+        alert(`${data.username} bought ${data.quantity} ${product.name}`);
+      }
+    });
+    
+    return () => {
+      socket.off("receive_message");
+    };
+  }, [user]);
+
   const handleBuyClick = async () => {
     if (!user) {
       return;
     }
+    
+    if (!quantity) {
+      alert('Please enter a quantity.'); 
+      return;
+    }
+  
+  
     try {
       const newQuantity = product.number - quantity;
       if (newQuantity < 0) {
         console.error('Cannot buy more than available quantity');
         return;
       }
+      socket.emit("send_message", { 
+        username: user.username,
+        quantity: quantity,
+        productName: product.name
+      });
       console.log("Product ID:", product._id);
       console.log("New Quantity:", newQuantity);
       const response = await fetch(`http://localhost:1337/buy/products/${product._id}/${newQuantity}`, {
@@ -36,12 +61,18 @@ const ProductDetails = ({ product }) => {
       if (response.ok) {
         dispatch({ type: 'CHANGE_PRODUCT_AMOUNT', payload: { _id: product._id, number: newQuantity } });
         console.log("Product quantity updated successfully");
+  
+        if (user.role === 'administrator') {
+          alert('Product quantity updated successfully');
+        }
       }
     } catch (error) {
       console.error(error.message);
-      // Handle error appropriately, e.g., show an error message to the user
     }
   };
+  
+  
+  
 
   const handleEditClick = async () => {
     if (!user) {

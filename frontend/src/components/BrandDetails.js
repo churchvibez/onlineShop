@@ -36,7 +36,6 @@ const BrandDetails = ({ brands }) => {
             });
     
             if (response.ok) {
-                // Remove the deleted brand from the list
                 setEditedBrands((prevBrands) => prevBrands.filter((b) => b !== brand));
                 console.log('Brand deleted successfully');
             } else {
@@ -46,7 +45,6 @@ const BrandDetails = ({ brands }) => {
             console.error('Error deleting brand:', error.message);
         }
     };
-
 
     return (
         <div className='brand-details'>

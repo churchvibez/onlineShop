@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProductsContext } from '../hooks/useProductContext';
 import { useAuthContext } from '../hooks/useAuthContext';
-import io from 'socket.io-client'; // Import Socket.IO client
+import io from 'socket.io-client';
 const socket = io.connect("http://localhost:1337")
 
 const ProductDetails = ({ product }) => {
@@ -11,11 +11,12 @@ const ProductDetails = ({ product }) => {
   const [editedName, setEditedName] = useState(product.name);
   const [editedBrand, setEditedBrand] = useState(product.brand);
   const [editedCategory, setEditedCategory] = useState(product.category);
-  const [image, setImage] = useState(null); // State to hold the selected image file
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      if (user && user.role === 'administrator') {
+      if (user && user.role === 'administrator') 
+      {
         alert(`${data.username} bought ${data.quantity} ${product.name}`);
       }
     });
@@ -28,17 +29,15 @@ const ProductDetails = ({ product }) => {
   const handleBuyClick = async () => {
     if (!user) {
       return;
-    }
-    
+    }   
     if (!quantity) {
       alert('Please enter a quantity.'); 
       return;
     }
-  
-  
     try {
-      const newQuantity = product.number - quantity;
-      if (newQuantity < 0) {
+      const newQuantity = quantity
+      if (newQuantity < 0) 
+      {
         console.error('Cannot buy more than available quantity');
         return;
       }
@@ -48,8 +47,9 @@ const ProductDetails = ({ product }) => {
         productName: product.name
       });
       console.log("Product ID:", product._id);
+      console.log("Old Quantity", product.number)
       console.log("New Quantity:", newQuantity);
-      const response = await fetch(`http://localhost:1337/buy/products/${product._id}/${newQuantity}`, {
+      const response = await fetch(`http://localhost:1337/buy/products/${product._id}/${quantity}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -70,9 +70,6 @@ const ProductDetails = ({ product }) => {
       console.error(error.message);
     }
   };
-  
-  
-  
 
   const handleEditClick = async () => {
     if (!user) {
@@ -84,7 +81,7 @@ const ProductDetails = ({ product }) => {
         brand: editedBrand,
         category: editedCategory,
         number: quantity,
-        image: await getBase64Image(image), // Convert selected image to base64 before updating
+        image: await getBase64Image(image),
       };
 
       const response = await fetch(`http://localhost:1337/products/${product._id}`, {
@@ -103,7 +100,6 @@ const ProductDetails = ({ product }) => {
       }
     } catch (error) {
       console.error(error.message);
-      // Handle error appropriately
     }
   };
 
@@ -112,7 +108,7 @@ const ProductDetails = ({ product }) => {
       return;
     }
     try {
-      console.log("Product ID to delete:", product._id); // Check if correct ID is being sent
+      console.log("Product ID to delete:", product._id);
       const response = await fetch(`http://localhost:1337/products/deleting/${product._id}`, {
         method: 'DELETE',
         headers: {
@@ -122,11 +118,10 @@ const ProductDetails = ({ product }) => {
       const json = await response.json();
 
       if (response.ok) {
-        dispatch({ type: 'DELETE_PRODUCT', payload: product }); // Pass the product itself as payload
+        dispatch({ type: 'DELETE_PRODUCT', payload: product });
       }
     } catch (error) {
       console.error(error.message);
-      // Handle error appropriately, e.g., show an error message to the user
     }
   };
 
@@ -135,7 +130,6 @@ const ProductDetails = ({ product }) => {
     setQuantity(value >= 1 ? value : 1);
   };
 
-  // Function to convert selected image file to base64 format
   const getBase64Image = async (image) => {
     return new Promise((resolve, reject) => {
       if (!image) {
@@ -155,7 +149,6 @@ const ProductDetails = ({ product }) => {
     });
   };
 
-  // Function to handle file change
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setImage(file);

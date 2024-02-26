@@ -23,7 +23,6 @@ export const useLogin = () => {
                 setError(json.error);
             } else {
                 const json = await response.json();
-                // Fetch user role
                 const roleResponse = await fetch(`http://localhost:1337/getUserRole/${username}`);
                 if (roleResponse.ok) {
                     const { role } = await roleResponse.json();

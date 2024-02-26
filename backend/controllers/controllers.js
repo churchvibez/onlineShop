@@ -4,11 +4,9 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 
-
-
 const getUsers = async (req, res) => {
     try {
-        const users = await User.find({}, 'username role'); // Query all users and return only their usernames and roles
+        const users = await User.find({}, 'username role');
         res.status(200).json(users);
     } catch (error) {
         console.error(error.message);
@@ -18,7 +16,6 @@ const getUsers = async (req, res) => {
 
 const getAllBrands = async (req, res) => {
     try {
-        // Query all products and return unique brand names
         const brands = await Product.distinct('brand');
         res.status(200).json(brands);
     } catch (error) {
@@ -29,7 +26,6 @@ const getAllBrands = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
     try {
-        // Query all products and return unique brand names
         const categories = await Product.distinct('category');
         res.status(200).json(categories);
     } catch (error) {
@@ -128,7 +124,6 @@ const postUser = async (req, res) => {
     const { username, password, role } = req.body;
 
     try {
-        // Check if username already exists
         const existingUser = await User.findOne({ username });
 
         if (existingUser) {
@@ -136,14 +131,12 @@ const postUser = async (req, res) => {
         }
 
         console.log("hey" + password)
-        // Create the user
         const newUser = new User({
             username,
-            password, // Since the password is already hashed
+            password,
             role
         });
 
-        // Save the user to the database
         await newUser.save();
 
         res.status(201).json({ message: 'User created successfully' });
@@ -289,9 +282,7 @@ const patchManyCategories = async (req, res) => {
 
 const patchBrand = async (req, res) => {
     try {
-        const { id, brand } = req.params; // Extract product ID and new brand from params
-
-        // Update the product with the given _id
+        const { id, brand } = req.params; 
         const result = await Product.updateOne({ _id: id }, { $set: { brand: brand } });
 
         if (result.nModified === 0) {
@@ -307,9 +298,7 @@ const patchBrand = async (req, res) => {
 
 const patchCategory = async (req, res) => {
     try {
-        const { id, category } = req.params; // Extract product ID and new category from params
-
-        // Update the product with the given _id
+        const { id, category } = req.params; 
         const result = await Product.updateOne({ _id: id }, { $set: { category: category } });
 
         if (result.nModified === 0) {
@@ -325,9 +314,7 @@ const patchCategory = async (req, res) => {
 
 const patchImage = async (req, res) => {
     try {
-        const { id, image } = req.params; // Extract product ID and new image from params
-
-        // Update the product with the given _id
+        const { id, image } = req.params;
         const result = await Product.updateOne({ _id: id }, { $set: { image: image } });
 
         if (result.nModified === 0) {
@@ -345,8 +332,6 @@ const patchAll = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, brand, category, image, number } = req.body;
-
-        // Construct the update object
         const updates = {};
         if (name) updates.name = name;
         if (brand) updates.brand = brand;
@@ -354,7 +339,6 @@ const patchAll = async (req, res) => {
         if (image) updates.image = image;
         if (number) updates.number = number
 
-        // Find the product by ID and update its fields
         const updatedProduct = await Product.findByIdAndUpdate(id, { $set: updates }, { new: true });
 
         if (!updatedProduct) {
@@ -372,13 +356,10 @@ const patchUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { username, role } = req.body;
-
-        // Construct the update object
         const updates = {};
         if (username) updates.username = username;
         if (role) updates.role = role;
 
-        // Find the user by ID and update its fields
         const updatedUser = await User.findByIdAndUpdate(id, { $set: updates }, { new: true });
 
         if (!updatedUser) {
@@ -410,14 +391,14 @@ const deleteUser = async (req, res) => {
 
 const patchNumber = async (req, res) => {
     try {
-        const { id, number } = req.params; // Extract product ID and new number from params
-        
-        // Validate if the number is negative
-        if (parseInt(number) < 0) {
+        const { id, number } = req.params;
+        if (parseInt(number) < 0) 
+        {
             return res.status(400).json({ message: "Negative numbers are not allowed" });
         }
 
-        // Update the product with the given _id
+        
+
         const result = await Product.updateOne({ _id: id }, { $set: { number: number } });
 
         if (result.nModified === 0) {

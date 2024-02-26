@@ -13,17 +13,10 @@ const requireAuthUserPatch = async(req, res, next) =>
     try {
         const { _id} = jwt.verify(token, process.env.SECRET);
         const user = await User.findOne({ _id }).select('_id');
-        // Check user role
-
-
         if (!user) {
             throw new Error('User not found');
         }
-
         req.user = user;
-
-        // Check user role
-
         next();
     } catch (error) {
         console.error(error);

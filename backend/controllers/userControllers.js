@@ -11,21 +11,9 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-const cors = require('cors');
-app.use(cors());
-
 require('dotenv').config();
 app.use(express.json());
 
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*',
-    }
-});
-
-io.on('connection', (socket) => {
-    console.log(`Client connected: ${socket.id}`);
-});
 
 const maxAge = 3 * 24 * 60 * 60;
 
@@ -52,7 +40,7 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.login(username, password);
         const token = createToken(user._id);
-        res.status(200).json({ username, token }); // Send back the token along with response
+        res.status(200).json({ username, token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -90,15 +78,18 @@ const getProduct = async (req, res) => {
 
 const patchNumber = async (req, res) => {
     try {
-        const { id, number } = req.params; // Extract product ID and new number from params
+        const { id, number } = req.params;
 
-        // Validate if the number is negative
-        if (parseInt(number) < 0) {
-            return res.status(400).json({ message: "Negative numbers are not allowed" });
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
         }
-
-        // Update the product with the given _id
-        const result = await Product.updateOne({ _id: id }, { $set: { number: number } });
+        const currentAmount = product.number;
+        const updatedAmount = currentAmount - parseInt(number, 10);
+        if (updatedAmount < 0) {
+            return res.status(400).json({ message: "Desired quantity exceeds available quantity" });
+        }
+        const result = await Product.updateOne({ _id: id }, { $set: { number: updatedAmount } });
 
         if (result.nModified === 0) {
             return res.status(404).json({ message: "Product not found or number unchanged" });
@@ -112,5 +103,6 @@ const patchNumber = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 module.exports = { loginUser, signupUser, getUserRole, getProduct, patchNumber };

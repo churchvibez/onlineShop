@@ -36,7 +36,6 @@ const CategoryDetails = ({ categories }) => {
             });
     
             if (response.ok) {
-                // Remove the deleted category from the list
                 setEditedCategories((prevCategories) => prevCategories.filter((c) => c !== category));
                 console.log('Category deleted successfully');
             } else {

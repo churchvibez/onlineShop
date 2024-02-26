@@ -5,14 +5,10 @@ const jwt = require('jsonwebtoken')
 
 const patchNumber = async (req, res) => {
     try {
-        const { id, number } = req.params; // Extract product ID and new number from params
-        
-        // Validate if the number is negative
+        const { id, number } = req.params;
         if (parseInt(number) < 0) {
             return res.status(400).json({ message: "Negative numbers are not allowed" });
         }
-
-        // Update the product with the given _id
         const result = await Product.updateOne({ _id: id }, { $set: { number: number } });
 
         if (result.nModified === 0) {

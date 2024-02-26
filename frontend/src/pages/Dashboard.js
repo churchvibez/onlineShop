@@ -5,38 +5,33 @@ import AddProduct from '../components/AddProduct';
 import UserDetails from '../components/UserDetails';
 import AddUser from '../components/AddUser';
 import BrandDetails from '../components/BrandDetails';
-import CategoryDetails from '../components/CategoryDetails'; // Import CategoryDetails
+import CategoryDetails from '../components/CategoryDetails';
 import { useProductsContext } from "../hooks/useProductContext";
-import io from 'socket.io-client'; // Import Socket.IO client
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
+import io from 'socket.io-client'; 
 
 const Dashboard = () => {
     const { products, dispatch } = useProductsContext();
     const { user } = useAuthContext();
     const [users, setUsers] = useState([]);
     const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]); // State for categories
+    const [categories, setCategories] = useState([]);
     const [socket, setSocket] = useState(null);
-    const [socketId, setSocketId] = useState(null); // State to store socket ID
+    const [socketId, setSocketId] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
     useEffect(() => {
         const newSocket = io("http://localhost:1337");
         setSocket(newSocket);
-    
-        // Emit event to request socket ID
         newSocket.emit('getSocketId');
-    
-        // Listen for socket ID from the backend
-        newSocket.on('socketId', (id) => {
+        newSocket.on('socketId', (id) => 
+        {
             setSocketId(id);
         });
     
-        // Listen for productBought event
-        newSocket.on('productBought', (data) => {
-            console.log('Product bought event received:', data); // Log the received data
+        newSocket.on('productBought', (data) => 
+        {
+            console.log('Product bought event received:', data); 
             setSnackbarMessage(`Product ${data.productId} has been bought`);
             setSnackbarOpen(true);
         });
@@ -46,13 +41,11 @@ const Dashboard = () => {
         };
     }, [user]);
 
-
-
-
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch('http://localhost:1337/products', {
+                const response = await fetch('http://localhost:1337/products', 
+                {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
                     }
@@ -67,15 +60,18 @@ const Dashboard = () => {
             }
         };
 
-        if (user) {
+        if (user) 
+        {
             fetchProducts();
         }
     }, [dispatch, user]);
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchUsers = async () => 
+        {
             try {
-                const response = await fetch('http://localhost:1337/users', {
+                const response = await fetch('http://localhost:1337/users', 
+                {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
                     }
@@ -106,7 +102,7 @@ const Dashboard = () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setBrands(data); // Update brands state with fetched data
+                    setBrands(data); 
                 }
             } catch (error) {
                 console.error('Error fetching brands:', error);
@@ -129,7 +125,7 @@ const Dashboard = () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setCategories(data); // Update categories state with fetched data
+                    setCategories(data); 
                 }
             } catch (error) {
                 console.error('Error fetching categories:', error);

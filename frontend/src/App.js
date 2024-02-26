@@ -10,7 +10,6 @@ import Dashboard from './pages/Dashboard'
 
 function App() 
 {
-  // gets the value of user from useauthcontext, null if user isn't logged in
   const {user} = useAuthContext()
   return (
     <div className="App">

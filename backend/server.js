@@ -5,30 +5,22 @@ const mongoose = require('mongoose');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
-
-var bodyParser = require('body-parser');
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-
 const cors = require('cors');
-app.use(cors());
-
+const bodyParser = require('body-parser');
 require('dotenv').config();
+
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(cors());
 app.use(express.json());
-
-app.use((req, res, next) => {
-    console.log(req.path, req.method);
-    next();
-});
-
 app.use(userRoutes);
-//app.use("/buy", userPatch);
 app.use("/", routes);
 
-app.use((req, res, next) => {
-    console.log(req.path, req.method);
-    next();
-});
+// app.use((req, res, next) => 
+// {
+//     console.log(req.path, req.method);
+//     next();
+// });
 
 mongoose.connect(process.env.MONGODB).then(() => {
     console.log("MongoDB connected successfully");
@@ -44,8 +36,6 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
     console.log('New client connected: ' + socket.id);
-
-    // Send the socket ID to the client
     socket.emit('socketId', socket.id);
     socket.on("send_message", (data) =>
     {

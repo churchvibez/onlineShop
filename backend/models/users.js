@@ -28,16 +28,11 @@ userSchema.post('save', function (doc, next) {
     next()
 })
 
-// could be useful for final lab? when msg should pop up on the screen
-// MONGOOSE HOOKS
-
 userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt()
     this.password = await bcrypt.hash(this.password, salt)
     next()
 })
-
-// static method to login user
 
 userSchema.statics.login = async function(username, password) {
     if (!username || !password) {
@@ -84,8 +79,6 @@ userSchema.statics.hashPassword = async function (password) {
         throw new Error('Error hashing password');
     }
 };
-
-
 
 const User = mongoose.model('user', userSchema);
 module.exports = User;

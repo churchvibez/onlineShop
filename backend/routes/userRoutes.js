@@ -3,7 +3,7 @@ const {loginUser, signupUser, getUserRole, getProduct, patchNumber} = require('.
 const router = express.Router()
 
 router.post('/login', loginUser); // No requireAuth middleware here
-router.post('/signup', signupUser); // No requireAuth middleware here
+router.post('/signup', signupUser); 
 router.get('/getUserRole/:username', getUserRole);
 router.get('/products', getProduct);
 router.patch('/buy/products/:id/:number', patchNumber);

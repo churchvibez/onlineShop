@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
-import bcrypt from 'bcryptjs'; // Import bcryptjs for password hashing
+import bcrypt from 'bcryptjs';
 
 const AddUser = () => {
     const { user } = useAuthContext();
@@ -17,11 +17,9 @@ const AddUser = () => {
             setError("You have to be logged in");
             return;
         }
-
-        // Hash the password using bcryptjs
         const hashedPassword = bcrypt.hashSync(password, 10);
         console.log(hashedPassword)
-        const newUser = { username, password, role }; // Use the hashed password
+        const newUser = { username, password, role };
         const response = await fetch("http://localhost:1337/users", {
             method: "POST",
             body: JSON.stringify(newUser),

@@ -5,7 +5,6 @@ const UserDetails = ({ users }) => {
   const { user } = useAuthContext();
   const [editedUsers, setEditedUsers] = useState(users);
 
-  // Update editedUsers state whenever the users prop changes
   useEffect(() => {
     setEditedUsers(users);
   }, [users]);
@@ -22,7 +21,6 @@ const UserDetails = ({ users }) => {
       });
 
       if (response.ok) {
-        // Update the user list if the request is successful
         setEditedUsers((prevUsers) =>
           prevUsers.map((u) => (u._id === editedUser._id ? editedUser : u))
         );
@@ -45,7 +43,6 @@ const UserDetails = ({ users }) => {
       });
 
       if (response.ok) {
-        // Remove the deleted user from the user list if the request is successful
         setEditedUsers((prevUsers) => prevUsers.filter((u) => u._id !== userId));
         console.log('User deleted successfully');
       } else {

@@ -15,14 +15,11 @@ const AddProduct = () => {
     
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0]; // Ensure that the file object is properly obtained
+        const file = e.target.files[0];
         setImage(file)
         console.log('File:', file);
         const reader = new FileReader();
-    
-        
-    
-        reader.readAsDataURL(file); // Make sure the file is read as data URL
+        reader.readAsDataURL(file); 
     };  
 
     const handleSubmit = async (e) => {
@@ -33,10 +30,7 @@ const AddProduct = () => {
             setError("have to be logged in")
             return
         }
-
-        // Convert image to base64 format
         const base64Image = await getBase64Image(image);
-    
         const product = { name, brand, category, image: base64Image, number };
         const response = await fetch("http://localhost:1337/products", {
             method: "POST",
@@ -83,8 +77,6 @@ const AddProduct = () => {
             reader.readAsDataURL(image);
         });
     };
-    
-    
 
     return (
         <form onSubmit={handleSubmit}>

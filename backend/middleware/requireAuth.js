@@ -12,7 +12,6 @@ const requireAuth = async (req, res, next) => {
     try {
         const { _id, role } = jwt.verify(token, process.env.SECRET);
         const user = await User.findOne({ _id }).select('_id role');
-        // Check user role
         if (user.role === 'basic') {
             return res.status(403).json({ error: "Insufficient permissions" });
         }
@@ -22,9 +21,6 @@ const requireAuth = async (req, res, next) => {
         }
 
         req.user = user;
-
-        // Check user role
-
         next();
     } catch (error) {
         console.error(error);
